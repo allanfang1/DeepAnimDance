@@ -185,7 +185,7 @@ class Skeleton:
         d = 0.0
         for i in range(Skeleton.dim):
             d += norm( self.ske[i]-ske.ske[i])
-        return d
+        return d / Skeleton.dim
 
     def draw(self, image):
         """ draw skeleton on image """
