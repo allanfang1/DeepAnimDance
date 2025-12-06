@@ -26,9 +26,9 @@ class DanceDemo:
         elif typeOfGen==2:         # VanillaNN
             print("Generator: GenSimpleNN")
             self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=1)
-        # elif typeOfGen==3:         # VanillaNN
-        #     print("Generator: GenSimpleNN")
-        #     self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=2)
+        elif typeOfGen==3:         # VanillaNN
+            print("Generator: GenSimpleNN")
+            self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=2)
         # elif typeOfGen==4:         # GAN
         #     print("Generator: GenSimpleNN")
         #     self.generator = GenGAN( self.target, loadFromFile=True)

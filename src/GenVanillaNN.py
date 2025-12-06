@@ -5,6 +5,8 @@ import pickle
 import sys
 import math
 
+cv2.setNumThreads(0)
+
 from PIL import Image
 import matplotlib.pyplot as plt
 from torchvision.io import read_image
@@ -112,15 +114,21 @@ class GenNNSke26ToImage(nn.Module):
         self.input_dim = Skeleton.reduced_dim
         self.model = nn.Sequential(
             # TP-TODO
-            nn.Linear(26, 3*64*64),
+            nn.ConvTranspose2d(26, 128, 4, 1, 0), #4
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(128, 64, 4, 2, 1), #8
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(64, 32, 4, 2, 1), #16
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(32, 8, 4, 2, 1), #32
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(8, 3, 4, 2, 1), #64
             nn.Tanh()
         )
         print(self.model)
 
     def forward(self, z):
-        z_flat = z.view(z.size(0), -1)
-        img = self.model(z_flat)
-        img = img.view(z.size(0), 3, 64, 64)
+        img = self.model(z)
         return img
 
 
@@ -136,6 +144,18 @@ class GenNNSkeImToImage(nn.Module):
         self.input_dim = Skeleton.reduced_dim
         self.model = nn.Sequential(
             # TP-TODO
+            nn.Conv2d(3, 32, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.Conv2d(32, 64, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.Conv2d(64, 128, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(128, 64, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(64, 32, 4, 2, 1),
+            nn.LeakyReLU(),
+            nn.ConvTranspose2d(32, 3, 4, 2, 1),
+            nn.Tanh()
         )
         print(self.model)
 
@@ -180,7 +200,7 @@ class GenVanillaNN():
                             ])
                             # ouput image (target) are in the range [-1,1] after normalization
         self.dataset = VideoSkeletonDataset(videoSke, ske_reduced=True, target_transform=tgt_transform, source_transform=src_transform)
-        self.dataloader = torch.utils.data.DataLoader(dataset=self.dataset, batch_size=16, shuffle=True)
+        self.dataloader = torch.utils.data.DataLoader(dataset=self.dataset, batch_size=16, shuffle=True, num_workers=0)
         if loadFromFile and os.path.isfile(self.filename):
             print("GenVanillaNN: Load=", self.filename)
             print("GenVanillaNN: Current Working Directory: ", os.getcwd())
@@ -193,34 +213,27 @@ class GenVanillaNN():
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.netG.parameters(), lr=1e-3)
 
-        print(f"Starting training for {n_epochs} epochs...")
+        print(f"Training for {n_epochs} epochs...")
         
         for epoch in range(n_epochs):
             epoch_loss = 0.0
             num_batches = 0
             
             for i, (skeletons, real_images) in enumerate(self.dataloader):
-                # Forward pass
                 generated_images = self.netG(skeletons)
-                
-                # Compute loss
                 loss = criterion(generated_images, real_images)
-                
-                # Backward pass and optimize
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 
                 epoch_loss += loss.item()
                 num_batches += 1
-            
-            # Print progress
+
             avg_loss = epoch_loss / num_batches
             if (epoch + 1) % 10 == 0 or epoch == 0:
                 print(f"Epoch [{epoch+1}/{n_epochs}], Loss: {avg_loss:.4f}")
-        
-        # Save the trained model
-        print(f"Training complete. Saving model to {self.filename}")
+    
+        print(f"Saving model to {self.filename}")
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         torch.save(self.netG, self.filename)
 
@@ -259,10 +272,10 @@ if __name__ == '__main__':
 
     if train:
         # Train
-        gen = GenVanillaNN(targetVideoSke, loadFromFile=False)
+        gen = GenVanillaNN(targetVideoSke, loadFromFile=False, optSkeOrImage=optSkeOrImage)
         gen.train(n_epoch)
     else:
-        gen = GenVanillaNN(targetVideoSke, loadFromFile=True)    # load from file        
+        gen = GenVanillaNN(targetVideoSke, loadFromFile=True, optSkeOrImage=optSkeOrImage)    # load from file        
 
 
     # Test with a second video
