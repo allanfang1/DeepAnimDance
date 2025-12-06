@@ -23,9 +23,9 @@ class DanceDemo:
         if typeOfGen==1:           # Nearest
             print("Generator: GenNeirest")
             self.generator = GenNeirest(self.target)
-        # elif typeOfGen==2:         # VanillaNN
-        #     print("Generator: GenSimpleNN")
-        #     self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=1)
+        elif typeOfGen==2:         # VanillaNN
+            print("Generator: GenSimpleNN")
+            self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=1)
         # elif typeOfGen==3:         # VanillaNN
         #     print("Generator: GenSimpleNN")
         #     self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=2)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # VANILLA_NN_SKE = 2
     # VANILLA_NN_Image = 3
     # GAN = 4
-    GEN_TYPE = 1
+    GEN_TYPE = 2
     #ddemo = DanceDemo("data/taichi2_full.mp4", GEN_TYPE)
     ddemo = DanceDemo("data/taichi2.mp4", GEN_TYPE)
     #ddemo = DanceDemo("data/karate1.mp4", GEN_TYPE)

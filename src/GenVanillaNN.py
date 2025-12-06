@@ -112,11 +112,15 @@ class GenNNSke26ToImage(nn.Module):
         self.input_dim = Skeleton.reduced_dim
         self.model = nn.Sequential(
             # TP-TODO
+            nn.Linear(26, 3*64*64),
+            nn.Tanh()
         )
         print(self.model)
 
     def forward(self, z):
-        img = self.model(z)
+        z_flat = z.view(z.size(0), -1)
+        img = self.model(z_flat)
+        img = img.view(z.size(0), 3, 64, 64)
         return img
 
 
@@ -152,8 +156,9 @@ class GenVanillaNN():
         image_size = 64
         if optSkeOrImage==1:        # skeleton_dim26 to image
             self.netG = GenNNSke26ToImage()
-            src_transform = transforms.Compose([ transforms.ToTensor(),
-                                                 ])
+            # src_transform = transforms.Compose([ transforms.ToTensor(),
+            #                                      ])
+            src_transform = None
             self.filename = 'data/Dance/DanceGenVanillaFromSke26.pth'
         else:                       # skeleton_image to image
             self.netG = GenNNSkeImToImage()
@@ -184,26 +189,59 @@ class GenVanillaNN():
 
     def train(self, n_epochs=20):
         # TP-TODO
-        pass
+        # pass
+        criterion = nn.MSELoss()
+        optimizer = torch.optim.Adam(self.netG.parameters(), lr=1e-3)
+
+        print(f"Starting training for {n_epochs} epochs...")
+        
+        for epoch in range(n_epochs):
+            epoch_loss = 0.0
+            num_batches = 0
+            
+            for i, (skeletons, real_images) in enumerate(self.dataloader):
+                # Forward pass
+                generated_images = self.netG(skeletons)
+                
+                # Compute loss
+                loss = criterion(generated_images, real_images)
+                
+                # Backward pass and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                epoch_loss += loss.item()
+                num_batches += 1
+            
+            # Print progress
+            avg_loss = epoch_loss / num_batches
+            if (epoch + 1) % 10 == 0 or epoch == 0:
+                print(f"Epoch [{epoch+1}/{n_epochs}], Loss: {avg_loss:.4f}")
+        
+        # Save the trained model
+        print(f"Training complete. Saving model to {self.filename}")
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
+        torch.save(self.netG, self.filename)
 
 
     def generate(self, ske):
         """ generator of image from skeleton """
         # TP-TODO
-        pass
-        # ske_t = self.dataset.preprocessSkeleton(ske)
-        # ske_t_batch = ske_t.unsqueeze(0)        # make a batch
-        # normalized_output = self.netG(ske_t_batch)
-        # res = self.dataset.tensor2image(normalized_output[0])       # get image 0 from the batch
-        # return res
+        # pass
+        ske_t = self.dataset.preprocessSkeleton(ske)
+        ske_t_batch = ske_t.unsqueeze(0)        # make a batch
+        normalized_output = self.netG(ske_t_batch)
+        res = self.dataset.tensor2image(normalized_output[0])       # get image 0 from the batch
+        return res
 
 
 
 
 if __name__ == '__main__':
     force = False
-    optSkeOrImage = 2           # use as input a skeleton (1) or an image with a skeleton drawed (2)
-    n_epoch = 2000  # 200
+    optSkeOrImage = 1           # use as input a skeleton (1) or an image with a skeleton drawed (2)
+    n_epoch = 200  # 200
     train = 1 #False
     #train = True
 
