@@ -22,7 +22,7 @@ class GenNeirest:
 
     def generate(self, ske):           
         """ generator of image from skeleton """
-        # TP-TODO
+        # ALLAN'S IMPLEMENTATION -TODO
         best_image_index = -1
         best_dist = float('inf')
 

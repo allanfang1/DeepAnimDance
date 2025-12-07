@@ -1,4 +1,8 @@
-https://arxiv.org/abs/1611.07004
+# GAN "using" (lol) this paper https://arxiv.org/abs/1611.07004
+
+# TODO
+- Add skip connections or residual blocks to network
+
 # Tutorial
 
 This lab (Pratical Work/tutorial/TP) is for Master student of the course "Machine Learning and Images".

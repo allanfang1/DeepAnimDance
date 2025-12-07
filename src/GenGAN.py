@@ -27,32 +27,34 @@ class Discriminator(nn.Module):
     def __init__(self, ngpu=0):
         super().__init__()
         self.ngpu = ngpu
+        # ALLAN'S IMPLEMENTATION -TODO
         self.model = nn.Sequential(
             nn.Conv2d(3, 32, 4, 2, 1), #32
+            nn.BatchNorm2d(32),
             nn.LeakyReLU(),
             nn.Conv2d(32, 64, 4, 2, 1), #16
+            nn.BatchNorm2d(64),
             nn.LeakyReLU(),
             nn.Conv2d(64, 128, 4, 2, 1), #8
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(),
             nn.Conv2d(128, 256, 4, 2, 1), #4
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(),
             nn.Conv2d(256, 1, 4, 1, 0), #1
             nn.Sigmoid(),
         )
 
-
     def forward(self, input):
         pass
         return self.model(input)
-    
-
-
 
 class GenGAN():
     """ class that Generate a new image from videoSke from a new skeleton posture
        Fonc generator(Skeleton)->Image
     """
     def __init__(self, videoSke, loadFromFile=False):
+        # ALLAN'S IMPLEMENTATION (changed to use network ImToImage instead of 26ToImage) -TODO
         # self.netG = GenNNSke26ToImage()
         self.netG = GenNNSkeImToImage()
         self.netD = Discriminator()
@@ -79,7 +81,10 @@ class GenGAN():
 
 
     def train(self, n_epochs=20):
-        criterion = nn.BCELoss()
+        # ALLAN'S IMPLEMENTATION -TODO (https://arxiv.org/abs/1611.07004)
+        criterion_BCE = nn.BCELoss()
+        criterion_L1 = nn.L1Loss()
+        lambda_L1 = 100.0 # L1 weight
         optimizerG = torch.optim.Adam(self.netG.parameters(), lr=1e-4)
         optimizerD = torch.optim.Adam(self.netD.parameters(), lr=1e-4)
 
@@ -96,14 +101,14 @@ class GenGAN():
                 # real images
                 output = self.netD(real_images).view(-1)
                 labels = torch.ones_like(output)
-                lossD_real = criterion(output, labels)
+                lossD_real = criterion_BCE(output, labels)
                 lossD_real.backward()
 
                 # fake images
                 fake_images = self.netG(skeletons)
                 output = self.netD(fake_images.detach()).view(-1)
                 labels = torch.zeros_like(output) 
-                lossD_fake = criterion(output, labels)
+                lossD_fake = criterion_BCE(output, labels)
                 lossD_fake.backward()
                 optimizerD.step()
 
@@ -111,7 +116,9 @@ class GenGAN():
                 optimizerG.zero_grad()
                 output = self.netD(fake_images).view(-1)
                 labels = torch.ones_like(output)
-                lossG = criterion(output, labels)
+                lossG_L1 = criterion_L1(fake_images, real_images)
+                lossG_GAN = criterion_BCE(output, labels)
+                lossG = lossG_GAN + lambda_L1 * lossG_L1
                 lossG.backward()
                 optimizerG.step()
                 
@@ -120,22 +127,15 @@ class GenGAN():
 
             # avg_loss = epoch_loss / num_batches
             if (epoch + 1) % 10 == 0 or epoch == 0:
-                print(f"Epoch [{epoch+1}/{n_epochs}], D_Loss: {lossD_real.item() + lossD_fake.item():.4f}, G_Loss: {lossG.item():.4f}")
-                # print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f'
-                #           % (epoch, n_epochs, i, len(self.dataloader),
-                #              lossD_real.item() + lossD_fake.item(), lossG.item()))
+                print(f"Epoch [{epoch+1}/{n_epochs}], D_Loss: {lossD_real.item() + lossD_fake.item():.4f}, G_Loss_L1: {lossG_L1.item():.4f}, G_Loss_BCE: {lossG_GAN.item():.4f}, G_Loss: {lossG.item():.4f}")
     
         print(f"Saving model to {self.filename}")
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         torch.save(self.netG, self.filename)
-        # pass
 
-
-
-
-    def generate(self, ske):           # TP-TODO
+    def generate(self, ske):
         """ generator of image from skeleton """
-        # pass
+        # ALLAN'S IMPLEMENTATION -TODO
         ske_t = self.dataset.preprocessSkeleton(ske)
         ske_t_batch = ske_t.unsqueeze(0)        # make a batch
         normalized_output = self.netG(ske_t_batch)
