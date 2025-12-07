@@ -2,6 +2,15 @@
 
 # TODO
 - Add skip connections or residual blocks to network
+- ZIP:
+  - Trained network
+  - Code (I'm assuming)
+  - Video of 2 min showing a demo running the code;
+  - README:
+    - how to run the code using the trained network;
+    - how to train the networks
+    - and what you did exactly explain in English or French.
+
 
 # Tutorial
 
