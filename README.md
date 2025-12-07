@@ -1,4 +1,4 @@
-
+https://arxiv.org/abs/1611.07004
 # Tutorial
 
 This lab (Pratical Work/tutorial/TP) is for Master student of the course "Machine Learning and Images".
