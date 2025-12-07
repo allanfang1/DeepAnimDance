@@ -29,9 +29,9 @@ class DanceDemo:
         elif typeOfGen==3:         # VanillaNN
             print("Generator: GenSimpleNN")
             self.generator = GenVanillaNN( self.target, loadFromFile=True, optSkeOrImage=2)
-        # elif typeOfGen==4:         # GAN
-        #     print("Generator: GenSimpleNN")
-        #     self.generator = GenGAN( self.target, loadFromFile=True)
+        elif typeOfGen==4:         # GAN
+            print("Generator: GenSimpleNN")
+            self.generator = GenGAN( self.target, loadFromFile=True)
         else:
             print("DanceDemo: typeOfGen error!!!")
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # VANILLA_NN_SKE = 2
     # VANILLA_NN_Image = 3
     # GAN = 4
-    GEN_TYPE = 2
+    GEN_TYPE = 4
     #ddemo = DanceDemo("data/taichi2_full.mp4", GEN_TYPE)
     ddemo = DanceDemo("data/taichi2.mp4", GEN_TYPE)
     #ddemo = DanceDemo("data/karate1.mp4", GEN_TYPE)
