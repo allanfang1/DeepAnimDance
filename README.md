@@ -38,8 +38,12 @@ Characteristics:
   - Produces realistic images
   - Motion continuity is limited
 
-This method serves as a baseline and was not modified.
-
+Implementation:
+- Input: Skeleton pose
+- Method: Brute-force distance search
+- Process: Compares input skeleton to all target video skeletons using skeleton.distance(), returns image with closest match
+- Output: Retrieves corresponding frame from target video
+- No training required
 
 ## Vanilla Neural Network (GenVanillaNN)
 
@@ -47,16 +51,22 @@ Two variants are implemented:
 
 1 - Skeleton → Image (26D → Image)
 
-Input: reduced skeleton (26 values)
-Architecture: transposed convolutions
-Loss: Mean Squared Error (MSE)
+Implementation:
+- Input: Flattened skeleton vector (26-dim: 13 joints × 2D)
+- Architecture: 5-layer ConvTranspose2d generator (26→128→64→32→8→3 channels)
+- Upsampling: 1×1 → 4×4 → 8×8 → 16×16 → 32×32 → 64×64 images
+- Training: MSE loss, Adam optimizer (lr=1e-3)
+- Output: 64×64 RGB image normalized to [-1,1]
 
 2 - Skeleton Image → Image (recommended)
 
-Input: an image with the skeleton drawn on it
-Architecture: encoder–decoder CNN
-Output resolution: 64×64
-Loss: Mean Squared Error (MSE)
+Implementation:
+- Input: 64×64 image with skeleton drawn on white background
+- Architecture: Encoder-decoder (3→32→64→128 then 128→64→32→3 channels)
+- Encoder: 3 Conv2d layers downsample 64×64 → 8×8
+- Decoder: 3 ConvTranspose2d layers upsample 8×8 → 64×64
+- BatchNorm + LeakyReLU between layers
+- Training: Same as approach 2
 
 Improvements made
 
@@ -80,6 +90,13 @@ The generator is trained with a combination of:
 
   - Adversarial loss (Binary Cross-Entropy)
   - L1 reconstruction loss with λ = 100.
+
+Implementation:
+- Generator: Same encoder-decoder as approach 3
+- Discriminator: 5-layer CNN (3→32→64→128→256→1), outputs real/fake probability
+- Loss: BCE loss + L1 loss (λ=100) for structure preservation
+- Training: Adversarial training - D distinguishes real/fake, G fools D while minimizing L1 distance
+- Input/Output: Same as approach 3
 
 Observations
 
