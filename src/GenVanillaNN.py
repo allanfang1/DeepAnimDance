@@ -113,7 +113,7 @@ class GenNNSke26ToImage(nn.Module):
         super().__init__()
         self.input_dim = Skeleton.reduced_dim
         self.model = nn.Sequential(
-            # ALLAN'S IMPLEMENTATION -TODO
+            # OUR IMPLEMENTATION -TODO
             nn.ConvTranspose2d(26, 128, 4, 1, 0), #4
             nn.LeakyReLU(),
             nn.ConvTranspose2d(128, 64, 4, 2, 1), #8
@@ -143,7 +143,7 @@ class GenNNSkeImToImage(nn.Module):
         super().__init__()
         self.input_dim = Skeleton.reduced_dim
         self.model = nn.Sequential(
-            # ALLAN'S IMPLEMENTATION -TODO
+            # OUR IMPLEMENTATION -TODO
             nn.Conv2d(3, 32, 4, 2, 1), # 64 -> 32
             nn.BatchNorm2d(32),
             nn.LeakyReLU(),
@@ -176,7 +176,7 @@ class GenVanillaNN():
         image_size = 64
         if optSkeOrImage==1:        # skeleton_dim26 to image
             self.netG = GenNNSke26ToImage()
-            # ALLAN'S IMPLEMENTATION (it wasn't working so I changed it) -TODO
+            # OUR IMPLEMENTATION (it wasn't working so changed it) -TODO
             # src_transform = transforms.Compose([ transforms.ToTensor(),
             #                                      ])
             src_transform = None
@@ -209,7 +209,7 @@ class GenVanillaNN():
 
 
     def train(self, n_epochs=20):
-        # ALLAN'S IMPLEMENTATION -TODO
+        # OUR IMPLEMENTATION -TODO
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.netG.parameters(), lr=1e-3)
 
@@ -240,7 +240,7 @@ class GenVanillaNN():
 
     def generate(self, ske):
         """ generator of image from skeleton """
-        # ALLAN'S IMPLEMENTATION -TODO        
+        # OUR IMPLEMENTATION -TODO        
         ske_t = self.dataset.preprocessSkeleton(ske)
         ske_t_batch = ske_t.unsqueeze(0)        # make a batch
         normalized_output = self.netG(ske_t_batch)

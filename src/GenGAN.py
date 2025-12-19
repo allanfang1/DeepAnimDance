@@ -27,7 +27,7 @@ class Discriminator(nn.Module):
     def __init__(self, ngpu=0):
         super().__init__()
         self.ngpu = ngpu
-        # ALLAN'S IMPLEMENTATION -TODO
+        # OUR IMPLEMENTATION -TODO
         self.model = nn.Sequential(
             nn.Conv2d(3, 32, 4, 2, 1), #32
             nn.BatchNorm2d(32),
@@ -54,7 +54,7 @@ class GenGAN():
        Fonc generator(Skeleton)->Image
     """
     def __init__(self, videoSke, loadFromFile=False):
-        # ALLAN'S IMPLEMENTATION (changed to use network ImToImage instead of 26ToImage) -TODO
+        # OUR IMPLEMENTATION (changed to use network ImToImage instead of 26ToImage) -TODO
         # self.netG = GenNNSke26ToImage()
         self.netG = GenNNSkeImToImage()
         self.netD = Discriminator()
@@ -81,7 +81,7 @@ class GenGAN():
 
 
     def train(self, n_epochs=20):
-        # ALLAN'S IMPLEMENTATION -TODO (https://arxiv.org/abs/1611.07004)
+        # OUR IMPLEMENTATION -TODO (https://arxiv.org/abs/1611.07004)
         criterion_BCE = nn.BCELoss()
         criterion_L1 = nn.L1Loss()
         lambda_L1 = 100.0 # L1 weight
@@ -135,7 +135,7 @@ class GenGAN():
 
     def generate(self, ske):
         """ generator of image from skeleton """
-        # ALLAN'S IMPLEMENTATION -TODO
+        # OUR IMPLEMENTATION -TODO
         ske_t = self.dataset.preprocessSkeleton(ske)
         ske_t_batch = ske_t.unsqueeze(0)        # make a batch
         normalized_output = self.netG(ske_t_batch)
