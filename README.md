@@ -1,4 +1,4 @@
-Introduction
+## Introduction
 
 The objective is to generate a video of a target person performing the same movements as a source person, using human pose estimation and neural networks. From: 
 
@@ -7,15 +7,16 @@ The objective is to generate a video of a target person performing the same move
 
 We aim to synthesize new images of the target person that follow the motion of the source.
 
-Following methods are implemented:
+Following approaches are implemented:
 
   - Nearest Neighbor
-  - Vanilla Neural Network
+  - Vanilla Neural Network: 26 Skeleton Input
+  - Vanilla Neural Network: Skeleton Image Input
   - GAN
 
 
 
-Pose Extraction
+## Pose Extraction
 
 Human pose estimation is performed using MediaPipe Pose. Each video frame is associated with a skeleton composed of either:
 
@@ -26,7 +27,7 @@ Skeletons are stored and reused for training and inference.
 
 
 
-Nearest Neighbor (GenNearest)
+## Nearest Neighbor (GenNearest)
 
 For a given input skeleton, the system searches for the closest skeleton (Euclidean distance) in the target video and returns the corresponding image.
 
@@ -40,7 +41,7 @@ Characteristics:
 This method serves as a baseline and was not modified.
 
 
-Vanilla Neural Network (GenVanillaNN)
+## Vanilla Neural Network (GenVanillaNN)
 
 Two variants are implemented:
 
@@ -65,7 +66,7 @@ Improvements made
 
 
 
-Conditional GAN (GenGAN)
+## Conditional GAN (GenGAN)
 
 Architecture
 
@@ -88,21 +89,28 @@ Observations
 
 
 
-How to Run the Demo
+## How to Run the Demo
 
 The project uses a Conda environment.
-The provided tp_ml.yml file by Julie Digne can be used to recreate the environment (Remove linux dependencies if using Windows )
+The provided tp_ml.yml file by Julie Digne can be used to recreate the environment (Remove linux dependencies if using Windows)
 
 Model selection in DanceDemo.py
 
   - GEN_TYPE = 1 → Nearest Neighbor
-  - GEN_TYPE = 3 → Vanilla NN (skeleton image)
+  - GEN_TYPE = 2 → Vanilla Neural Network: 26 Skeleton Input
+  - GEN_TYPE = 3 → Vanilla Neural Network: Skeleton Image Input
   - GEN_TYPE = 4 → GAN
 
 
-How to Train the Networks
+## How to Train the Networks
 
-To train Vanilla Neural Network
+To train Vanilla Neural Network: 26 Skeleton Input
+  - set optSkeOrImage = 1 in main of GenVanillaNN.py
+  - python GenVanillaNN.py
+  - the trained model is saved in data/Dance/DanceGenVanillaFromSke26.pth
+
+To train Vanilla Neural Network: Skeleton Image Input
+  - set optSkeOrImage = 2 in main of GenVanillaNN.py
   - python GenVanillaNN.py
   - the trained model is saved in data/Dance/DanceGenVanillaFromSkeim.pth
 
